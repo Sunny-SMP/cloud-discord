@@ -224,17 +224,21 @@ public class JDA6CommandManager<C> extends CommandManager<C> {
     public void registerGuildCommands(final @NonNull Guild guild) {
         Objects.requireNonNull(guild, "guild");
 
-        guild.updateCommands()
-                .addCommands(this.commandFactory.createCommands(CommandScope.guilds(-1, guild.getIdLong())))
-                .queue(
-                        success -> LOGGER.info("Registered guild commands for {}", guild.getName()),
-                        error -> LOGGER.error(
-                                "Failed to register guild commands for {} ({})",
-                                guild.getName(),
-                                guild.getId(),
-                                error
-                        )
-                );
+        try {
+            guild.updateCommands()
+                    .addCommands(this.commandFactory.createCommands(CommandScope.guilds(guild.getIdLong())))
+                    .queue(
+                            success -> LOGGER.info("Registered guild commands for {}", guild.getName()),
+                            error -> LOGGER.error(
+                                    "Failed to register guild commands for {} ({})",
+                                    guild.getName(),
+                                    guild.getId(),
+                                    error
+                            )
+                    );
+        } catch (final Exception exception) {
+            LOGGER.error("An error occurred while registering guild commands", exception);
+        }
     }
 
     @SuppressWarnings("unchecked")
