@@ -225,6 +225,7 @@ public class JDA6CommandManager<C> extends CommandManager<C> {
         Objects.requireNonNull(guild, "guild");
 
         try {
+            LOGGER.info("Registering commands for guild {}", guild.getId());
             guild.updateCommands()
                     .addCommands(this.commandFactory.createCommands(CommandScope.guilds(guild.getIdLong())))
                     .queue(
