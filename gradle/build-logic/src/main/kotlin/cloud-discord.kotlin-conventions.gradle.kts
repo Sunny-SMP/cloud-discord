@@ -27,6 +27,6 @@ configure<KotlinJvmProjectExtension> {
     }
 
     tasks.named("javadocJar", AbstractArchiveTask::class) {
-        from(tasks.named("dokkaHtml"))
+        from(tasks.named("dokkaGenerateHtml"))
     }
 }

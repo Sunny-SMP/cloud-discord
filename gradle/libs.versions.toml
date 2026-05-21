@@ -10,8 +10,8 @@ checkstyle = "10.12.5"
 
 # Kotlin
 kotlin = "2.2.21"
-dokka = "1.9.20"
-coroutines = "1.10.2"
+dokka = "2.2.0"
+coroutines = "1.11.0"
 
 # Cloud
 cloud = "2.1.0-SNAPSHOT"
