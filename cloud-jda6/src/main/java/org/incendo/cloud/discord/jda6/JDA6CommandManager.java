@@ -89,7 +89,8 @@ public class JDA6CommandManager<C> extends CommandManager<C> {
         super(executionCoordinator, CommandRegistrationHandler.nullCommandRegistrationHandler());
         this.commandFactory = new StandardJDACommandFactory<>(this.commandTree());
         this.discordSettings = Configurable.enumConfigurable(DiscordSetting.class);
-        this.permissionPredicate = this::checkJdaPermission;
+        this.permissionPredicate = (c, s) -> true;
+//        this.permissionPredicate = this::checkJdaPermission;
         this.senderMapper = Objects.requireNonNull(senderMapper, "senderMapper");
         this.registerCommandPostProcessor(new ReplyCommandPostprocessor<>(this));
 
@@ -222,9 +223,18 @@ public class JDA6CommandManager<C> extends CommandManager<C> {
      */
     public void registerGuildCommands(final @NonNull Guild guild) {
         Objects.requireNonNull(guild, "guild");
+
         guild.updateCommands()
                 .addCommands(this.commandFactory.createCommands(CommandScope.guilds(-1, guild.getIdLong())))
-                .queue();
+                .queue(
+                        success -> LOGGER.info("Registered guild commands for {}", guild.getName()),
+                        error -> LOGGER.error(
+                                "Failed to register guild commands for {} ({})",
+                                guild.getName(),
+                                guild.getId(),
+                                error
+                        )
+                );
     }
 
     @SuppressWarnings("unchecked")
