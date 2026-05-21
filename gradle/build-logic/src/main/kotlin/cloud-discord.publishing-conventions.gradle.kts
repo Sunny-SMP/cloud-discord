@@ -20,3 +20,16 @@ indra {
         }
     }
 }
+
+publishing {
+    repositories {
+        maven {
+            name = "sunnyinfra-snapshots"
+            url = uri("https://repo.sunnyinfra.cloud/development")
+            credentials {
+                username = (project.findProperty("SunnyInfraUsername") ?: System.getenv("SunnyInfraUsername")) as? String
+                password = (project.findProperty("SunnyInfraPassword") ?: System.getenv("SunnyInfraPassword")) as? String
+            }
+        }
+    }
+}

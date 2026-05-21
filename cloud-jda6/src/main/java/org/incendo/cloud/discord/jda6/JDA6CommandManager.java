@@ -24,10 +24,12 @@
 package org.incendo.cloud.discord.jda6;
 
 import io.leangen.geantyref.TypeToken;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -87,7 +89,7 @@ public class JDA6CommandManager<C> extends CommandManager<C> {
         super(executionCoordinator, CommandRegistrationHandler.nullCommandRegistrationHandler());
         this.commandFactory = new StandardJDACommandFactory<>(this.commandTree());
         this.discordSettings = Configurable.enumConfigurable(DiscordSetting.class);
-        this.permissionPredicate = (sender, permission) -> true;
+        this.permissionPredicate = this::checkJdaPermission;
         this.senderMapper = Objects.requireNonNull(senderMapper, "senderMapper");
         this.registerCommandPostProcessor(new ReplyCommandPostprocessor<>(this));
 
@@ -261,5 +263,67 @@ public class JDA6CommandManager<C> extends CommandManager<C> {
                 },
                 pair -> LOGGER.error(pair.first(), pair.second())
         );
+    }
+
+    /**
+     * Checks whether the sender has the given permission.
+     *
+     * <p>Resolution order:
+     * <ol>
+     *   <li>No permission required ({@code permission} is blank or {@code null}) → allow.</li>
+     *   <li>Sender is not a {@link JDAInteraction} (e.g. a console sender) → deny.</li>
+     *   <li>DM context (no guild or no event) → deny; commands with permission
+     *       requirements must be used inside a guild.</li>
+     *   <li>No {@link Member} resolved from the event → deny.</li>
+     *   <li>Guild owner → always allow.</li>
+     *   <li>Permission string does not match any {@link Permission} constant → deny
+     *       and log a warning.</li>
+     *   <li>Member holds the required {@link Permission} → allow.</li>
+     * </ol>
+     *
+     * <p>The permission string must match a {@link Permission} name
+     * (e.g. {@code "MANAGE_ROLES"}), otherwise the check denies access.
+     * Commands are annotated with {@link org.incendo.cloud.discord.jda6.annotation.JDAPermission}
+     * using these names.
+     *
+     * @param sender     the command sender
+     * @param permission the required JDA permission name, or blank/null if none is required
+     * @return {@code true} if the sender is permitted to execute the command
+     */
+    private boolean checkJdaPermission(final C sender, final String permission) {
+        if (permission == null || permission.isEmpty()) {
+            return true;
+        }
+
+        if (!(sender instanceof JDAInteraction)) {
+            return false;
+        }
+
+        final GenericCommandInteractionEvent event = ((JDAInteraction) sender).interactionEvent();
+        if (event == null || !event.isFromGuild()) {
+            return false;
+        }
+
+        final Member member = event.getMember();
+        if (member == null) {
+            return false;
+        }
+
+        if (member.isOwner()) {
+            return true;
+        }
+
+        final Permission jdaPermission;
+        try {
+            jdaPermission = Permission.valueOf(permission.toUpperCase(Locale.ROOT));
+        } catch (final IllegalArgumentException e) {
+            LOGGER.warn(
+                    "Unknown JDA permission '{}' declared on a command — denying access by default.",
+                    permission
+            );
+            return false;
+        }
+
+        return member.hasPermission(jdaPermission);
     }
 }

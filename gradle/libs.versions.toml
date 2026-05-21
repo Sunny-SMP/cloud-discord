@@ -4,7 +4,7 @@ cloud-buildLogic-rootProject-publishing = { id = "org.incendo.cloud-build-logic.
 cloud-buildLogic-rootProject-spotless = { id = "org.incendo.cloud-build-logic.spotless.root-project", version.ref = "cloud-build-logic" }
 
 [versions]
-cloud-build-logic = "0.0.17"
+cloud-build-logic = "0.0.19"
 ktlint = "1.0.1"
 checkstyle = "10.12.5"
 
@@ -14,12 +14,12 @@ dokka = "1.9.20"
 coroutines = "1.10.2"
 
 # Cloud
-cloud = "2.0.0"
+cloud = "2.1.0-SNAPSHOT"
 
 # External
 immutables = "2.11.6"
 javacord = "3.8.0"
-jda6 = "6.1.0"
+jda6 = "6.4.1"
 logback = "1.5.20"
 kord = "0.14.0"
 kotlinLogging = "7.0.13"

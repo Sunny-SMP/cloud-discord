@@ -15,6 +15,10 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
+        maven("https://repo.sunnyinfra.cloud/development") {
+            this@maven.name = "SunnyInfra"
+            credentials(PasswordCredentials::class)
+        }
         maven("https://oss.sonatype.org/content/repositories/snapshots/") {
             name = "sonatypeOssSnapshots"
             mavenContent {
