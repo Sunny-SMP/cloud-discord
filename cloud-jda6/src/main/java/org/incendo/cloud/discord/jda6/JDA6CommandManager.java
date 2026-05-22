@@ -89,7 +89,7 @@ public class JDA6CommandManager<C> extends CommandManager<C> {
         super(executionCoordinator, CommandRegistrationHandler.nullCommandRegistrationHandler());
         this.commandFactory = new StandardJDACommandFactory<>(this.commandTree());
         this.discordSettings = Configurable.enumConfigurable(DiscordSetting.class);
-        this.permissionPredicate = (c, s) -> true;
+        this.permissionPredicate = (sender, permission) -> true;
 //        this.permissionPredicate = this::checkJdaPermission;
         this.senderMapper = Objects.requireNonNull(senderMapper, "senderMapper");
         this.registerCommandPostProcessor(new ReplyCommandPostprocessor<>(this));
